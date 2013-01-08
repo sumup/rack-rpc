@@ -217,10 +217,17 @@ class Rack::RPC::Endpoint
       attr_accessor :code
       attr_accessor :message
       attr_accessor :data
+      
+      @@default_data_message = "Unknown Error"
+
+      def self.set_default_data_message message
+        @@default_data_message = message
+      end
 
       ##
       # @return [Hash]
       def to_hash
+        data = {:message => @@default_data_message} if data.nil? || data[:message].nil?
         {
           :code    => code.to_i,
           :message => message.to_s,
