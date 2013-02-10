@@ -108,15 +108,15 @@ class Rack::RPC::Endpoint
 
         rescue ::Rack::RPC::Error => exception
           if @server.respond_to?(:rack_rpc_error_handler)
-            response.error = @server.rack_parse_error_handler exception
+            response.error = @server.rack_rpc_error_handler exception
           else
             response.error = JSONRPC::Error.new(:message => exception.to_s,
                                               :code => exception.code,
                                               :data => exception.data)
           end
         rescue => exception
-          if @server.respond_to?(:rack_parse_error_handler)
-            response.error = @server.rack_parse_error_handler exception
+          if @server.respond_to?(:rack_error_handler)
+            response.error = @server.rack_error_handler exception
           else
             Rack::RPC::Logger.log.error "INTERNAL ERROR #{exception}; backtrace: \n#{exception.backtrace.join("\n")}"
             response.error = JSONRPC::InternalError.new(:message => exception.to_s)
