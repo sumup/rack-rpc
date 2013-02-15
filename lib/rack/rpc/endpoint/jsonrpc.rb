@@ -122,7 +122,6 @@ class Rack::RPC::Endpoint
             response.error = JSONRPC::InternalError.new(:message => exception.to_s)
           end
         end
-
         response.to_hash.delete_if { |k, v| v.nil? }
       end
     end # Server
