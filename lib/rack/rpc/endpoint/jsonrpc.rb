@@ -45,8 +45,13 @@ class Rack::RPC::Endpoint
             when Hash  then process_request(json, context)
           end
         rescue JSON::ParserError => exception
-          response = JSONRPC::Response.new
-          response.error = JSONRPC::ParseError.new(:message => exception.to_s)
+          if @server.respond_to?(:rack_parse_error_handler)
+            response = JSONRPC::Response.new
+            response.error = @server.rack_parse_error_handler exception
+          else
+            response = JSONRPC::Response.new
+            response.error = JSONRPC::ParseError.new(:message => exception.to_s)
+          end
         end
         response.to_json + "\n"
       end
@@ -81,24 +86,42 @@ class Rack::RPC::Endpoint
           end
 
         rescue ::TypeError => exception # FIXME
-          response.error = JSONRPC::ClientError.new(:message => exception.to_s)
+          if @server.respond_to?(:rack_type_error_handler)
+            response.error = @server.rack_type_error_handler exception
+          else
+            response.error = JSONRPC::ClientError.new(:message => exception.to_s)
+          end
 
         rescue ::NoMethodError => exception
-          response.error = JSONRPC::NoMethodError.new(:message => exception.to_s)
+          if @server.respond_to?(:rack_no_method_error_handler)
+            response.error = @server.rack_no_method_error_handler exception
+          else
+            response.error = JSONRPC::NoMethodError.new(:message => exception.to_s)
+          end
 
         rescue ::ArgumentError => exception
-          response.error = JSONRPC::ArgumentError.new(:message => exception.to_s)
+          if @server.respond_to?(:rack_argument_error_handler)
+            response.error = @server.rack_argument_error_handler exception
+          else
+            response.error = JSONRPC::ArgumentError.new(:message => exception.to_s)
+          end
 
         rescue ::Rack::RPC::Error => exception
-          response.error = JSONRPC::Error.new(:message => exception.to_s,
+          if @server.respond_to?(:rack_rpc_error_handler)
+            response.error = @server.rack_rpc_error_handler exception
+          else
+            response.error = JSONRPC::Error.new(:message => exception.to_s,
                                               :code => exception.code,
                                               :data => exception.data)
-
+          end
         rescue => exception
-					Rack::RPC::Logger.log.error "INTERNAL ERROR #{exception}; backtrace: \n#{exception.backtrace.join("\n")}"
-          response.error = JSONRPC::InternalError.new(:message => exception.to_s)
+          if @server.respond_to?(:rack_error_handler)
+            response.error = @server.rack_error_handler exception
+          else
+            Rack::RPC::Logger.log.error "INTERNAL ERROR #{exception}; backtrace: \n#{exception.backtrace.join("\n")}"
+            response.error = JSONRPC::InternalError.new(:message => exception.to_s)
+          end
         end
-
         response.to_hash.delete_if { |k, v| v.nil? }
       end
     end # Server
