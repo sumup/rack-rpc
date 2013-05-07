@@ -1,4 +1,5 @@
 require 'json' unless defined?(JSON)
+require 'awesome_print'
 
 class Rack::RPC::Endpoint
   ##
@@ -240,7 +241,7 @@ class Rack::RPC::Endpoint
       attr_accessor :code
       attr_accessor :message
       attr_accessor :data
-      
+
       @@default_data_message = "Unknown Error"
 
       def self.set_default_data_message message
@@ -250,11 +251,13 @@ class Rack::RPC::Endpoint
       ##
       # @return [Hash]
       def to_hash
-        data = {:message => @@default_data_message} if data.nil? || data[:message].nil?
+        if @data.nil? || @data[:message].nil?
+          @data = {:message => @@default_data_message}
+        end
         {
           :code    => code.to_i,
           :message => message.to_s,
-          :data    => data,
+          :data    => @data,
         }
       end
     end # Error
@@ -283,4 +286,4 @@ class Rack::RPC::Endpoint
       OPTIONS = {:code => -32000, :message => "server error"}
     end # ServerError
   end # JSONRPC
- end # Rack::RPC::Endpoint
+end # Rack::RPC::Endpoint
