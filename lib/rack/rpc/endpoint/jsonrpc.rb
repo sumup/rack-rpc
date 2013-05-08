@@ -1,5 +1,4 @@
 require 'json' unless defined?(JSON)
-require 'awesome_print'
 
 class Rack::RPC::Endpoint
   ##
