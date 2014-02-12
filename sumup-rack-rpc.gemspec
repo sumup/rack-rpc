@@ -27,7 +27,7 @@ Gem::Specification.new do |gem|
   gem.required_ruby_version      = '>= 1.8.7'
   gem.requirements               = []
   gem.add_runtime_dependency     'builder',   '>= 2.1.2'
-  gem.add_runtime_dependency     'rack',      '>= 1.0'
+  gem.add_runtime_dependency     'rack',      '>= 1.5.2'
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'json',      '~> 1.7.3'
   gem.add_development_dependency 'nokogiri',  '>= 1.4.4'
