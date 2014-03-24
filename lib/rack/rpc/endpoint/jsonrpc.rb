@@ -72,6 +72,7 @@ class Rack::RPC::Endpoint
         response = JSONRPC::Response.new
         begin
           request = JSONRPC::Request.new(struct, context)
+          Rack::RPC::Logger.log.info "Request id: #{request.id}, method: #{request.method}"
           response.id = request.id
 
           raise ::TypeError, "invalid JSON-RPC request" unless request.valid?
