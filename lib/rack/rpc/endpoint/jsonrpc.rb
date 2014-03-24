@@ -74,7 +74,11 @@ class Rack::RPC::Endpoint
           request = JSONRPC::Request.new(struct, context)
           response.id = request.id
 
-          raise ::TypeError, "invalid JSON-RPC request" unless request.valid?
+          unless request.valid?
+            Rack::RPC::Logger.log.debug "Method: #{request.method}, Version: #{request.version}, " \
+                                        "Request id: #{request.id}, Params: #{request.params}"
+            raise ::TypeError, "invalid JSON-RPC request"
+          end
 
           case operator = @server.class[request.method]
             when nil
